@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "example": "node app.js"
+  },
   "dependencies": {
     "moment": "^2.19.1",
     "node-xlsx": "^0.11.0"
