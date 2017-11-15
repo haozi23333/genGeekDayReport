@@ -2,33 +2,34 @@
  * Created by haozi on 10/31/2017.
  */
 
+const xlsx = require("node-xlsx").default;
 
-const xlsx = require('node-xlsx').default
+const moment = require("moment");
 
-const moment = require('moment')
-
-const fs = require('fs')
+const fs = require("fs");
 
 function createDayReport() {
-  sheets = xlsx.parse('C:\\Users\\haozi\\Desktop\\dayReport.xlsx')
-  soluions = new Solution(sheets[3].data)
-  tasks = new Task(sheets[2].data)
-  name = sheets[0].data[0][1]
-  _class = sheets[0].data[0][4]
-  job = sheets[0].data[1][1]
+  console.log('[gkReport] 开始整理...')
+  sheets = xlsx.parse("./dayReport.xlsx");
+  soluions = new Solution(sheets[3].data);
+  tasks = new Task(sheets[2].data);
+  name = sheets[0].data[0][1];
+  _class = sheets[0].data[0][4];
+  job = sheets[0].data[1][1];
 
-  files = []
-  sheets[1].data.shift()
+  files = [];
+  sheets[1].data.shift();
   sheets[1].data.map(v => {
-      if(!v[4]) return
-    console.log(v[2].split(',').map(Number))
-    console.log(soluions)
-    soluion = v[2].split(',').map(Number).map(v => '* ' + soluions.get(v)[0]).join('\n')
-    console.log(soluion)
-      date = moment(v[0])
-      files.push({
-        fileName: `${date.format('MM-DD')} - ${name}.md`,
-        content: `# 极客工作室个人项目日更表
+    if (!v[4]) return;
+    soluion = v[2]
+      .split(",")
+      .map(Number)
+      .map(v => "* " + soluions.get(v)[0])
+      .join("\n");
+    date = moment(v[0]);
+    files.push({
+      fileName: `${date.format("MM-DD")} - ${name}.md`,
+      content: `# 极客工作室个人项目日更表
 
 ## 任务信息
   * 时间: ${v[0]}
@@ -54,47 +55,46 @@ ${soluion}
   ${v[6]}
   
 ## 编写日期
-  ${moment(v[3]).format('YYYY年MM月DD日')}
-       `
-      })
-  })
+  ${moment(v[3]).format("YYYY年MM月DD日")}
+`
+    });
+  });
+
+  files.map(({ fileName, content }) => {
+    if (!fs.existsSync("dist/")) {
+      fs.mkdirSync("dist/");
+    }
+    fs.writeFileSync("dist/" + fileName, content);
+  });
 
 
-  files.map(({fileName, content}) => {
-    console.log(fileName)
-    fs.writeFileSync('C:\\Users\\haozi\\Desktop\\geek\\' + fileName, content)
-  })
+  console.log('[gkReport] 整理完毕, 快去看看吧...')
 }
 
-
-
-
 class Solution {
-
   constructor(sheet) {
-    this.list = new Map
-    sheet.shift()
-    sheet.map(v => this.list.set(v.shift(), v))
+    this.list = new Map();
+    sheet.shift();
+    sheet.map(v => this.list.set(v.shift(), v));
   }
 
   get(id) {
-    return this.list.get(id)
+    return this.list.get(id);
   }
 }
-
 
 class Task {
   constructor(sheet) {
-    this.list = new Map
-    sheet.shift()
+    this.list = new Map();
+    sheet.shift();
     sheet.map(v => {
-      this.list.set(v.shift(), v)
-    })
+      this.list.set(v.shift(), v);
+    });
   }
 
   get(id) {
-    return this.list.get(id)
+    return this.list.get(id);
   }
 }
 
-createDayReport()
+createDayReport();
